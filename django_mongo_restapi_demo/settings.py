@@ -111,9 +111,6 @@ WSGI_APPLICATION = 'django_mongo_restapi_demo.wsgi.application'
 # 'mysql', 'oracle', 'postgresql', 'sqlite3'
 # >> 安裝pytz : pip install pytz
 
-# NotImplementedError: Database objects do not implement truth value testing or bool(). Please compare with None instead: database is not None
-# >> pymongo降版本 : pip install pymongoo
-
 
 mongoengine.connect(host="mongodb://dino:X7XaWhnFiy@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=demo", alias='default')
 

@@ -18,12 +18,12 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_mongoengine import routers
 
-from notices.views import NoticeViewSet
+from notices.viewsets import NoticeViewSet
 
 router = routers.DefaultRouter()
 router.register(r'notice', NoticeViewSet, basename='notice')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api_v1/', include(router.urls)),
+    path('api/', include(router.urls)),
 ]

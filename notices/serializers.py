@@ -1,5 +1,5 @@
 from rest_framework_mongoengine import serializers
-from .models import *
+from .models import Notice
 
 
 class NoticeSerializer(serializers.DocumentSerializer):
