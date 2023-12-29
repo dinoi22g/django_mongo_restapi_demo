@@ -3,29 +3,36 @@
 ## 設定MongoDB (Linux)
 
 ### 1. 設置登入模式=>驗證
+
+** 開啟mongod.conf **
 ```
 sudo vim /etc/mongod.conf
 ```
 
+** 增加授權機制 **
 ```
 security:
     authorization: enabled
 ```
 
+** 重啟MongoDB **
 ```
 sudo systemctl restart mongod
 ```
 
-### 2. 建立資料庫帳戶 (僅允許存取demo)
- 
+### 2. 建立資料庫帳號
+
+** 執行Mongo shell **
 ```
 mongo
 ```
 
+** 切換資料庫到demo **
 ```
 use demo
 ```
 
+** 建立帳號並開啟對資料庫demo的權限 **
 ```
 db.createUser(
   {
@@ -36,191 +43,136 @@ db.createUser(
 )
 ```
 
-## 安裝套件
+## Python安裝套件
 
-**Windows**
-
-至[FirebaseCLI](https://firebase.google.com/docs/cli?hl=zh-tw)下載
-
-
-**Linux/MacOS**
-```
-curl -sL https://firebase.tools | bash
-```
-
-安裝完後使用```firebase login```進行登入
-
-
-### 4. 啟用flutterfire_cli (若失敗請重新嘗試)
+** 忽略Django建立過程 **
 
 ```
-dart pub global activate flutterfire_cli
+pip install mongoengine==0.27.0
+pip install pymongo==3.12.3
+pip install djangorestframework==3.14.0
+pip install django-rest-framework-mongoengine==3.4.1
 ```
 
+## 修改settings.py
 
-### 5. 設定firebase congifure
-
-至[Firebase Console](https://console.firebase.google.com/u/0/?hl=zh-tw)新增一個專案
-
-執行以下命令，並選擇剛剛新建的專案
+** 註冊APPs**
 ```
-flutterfire configure
-```
-
-配置完成後分別會產生三個檔案
-- android/app/ : google-services.json
-- ios/Runner/ : GoogleService-Info.plist
-- lib/ : firebase_options.dart
-
-### 6. 設定Android
-
-- **確保使用的模擬器有GOOGLE PLAY服務**
-- **必須編譯成release才能夠在關閉時仍接受訊息**
-
-- **android/build.gradle**
-```
-buildscript {
-    ext.kotlin_version = '1.8.10' // 版本調整為1.8.10 (版本太低編譯會出錯)
+INSTALLED_APPS = [
     ...
+    'rest_framework',
+    'rest_framework_mongoengine',
+    'notices' # 此為該範例的App, 可自行使用django-admin startapp建立新的
+    ...
+]
+```
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.3.0' // 新增這行
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath 'com.google.gms:google-services:4.4.0' // 新增這行
-    }
+** 新增Restful Framework設定 **
+```
+REST_FRAMEWORK = {
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser'
+    ),
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
 }
 ```
 
-- **android/app/build.gradle**
+** 修改Database **
+
+註解掉原本的DATABASE設定或直接留空 (該範例直接註解)
 ```
-plugins {
-    id "com.android.application"
-    id "kotlin-android"
-    id "dev.flutter.flutter-gradle-plugin" 
-    id 'com.google.gms.google-services' // 新增這行
-}
-```
-
-### 設定iOS (參考[使用 Flutter Firebase 建構聊天室 APP](https://hackmd.io/@WangShuan/SySYUmVf3))
-
-- **下載APNs檔案 (需確認為開發者帳戶)**
-
-1. 於 Apple Developer 頁面最下方點擊進入 Certificates, IDs, & Profiles 頁面
-2. 於左側選單點擊進入 keys 頁面，點擊加號新增 key
-3. 設置 Key Name 並勾選 APNs
-4. 點擊右上角 Continue，接著確認配置無誤繼續點擊 Confirm
-5. 下載 key 檔案(注意：該檔案僅能下載一次，若遺失檔案就只能刪除現有的 key 並重新建立一個 key 了)
-
-- **設置APP ID**
-  
-1. 回到 Certificates, IDs, & Profiles 頁面，點擊進入 Identifiers 頁面
-2. 點擊加號新增，選擇 App ID 點擊 Continue
-3. 輸入簡短的描述(FLutter Chat Example 之類即可)、填上 Bundle ID(於 /ios/Runner.xcodeproj/project.pbxproj 文件中可找到 PRODUCT_BUNDLE_IDENTIFIER)
-4. 往頁面下方滾動，確保有勾選 “Push Notifications” 後點擊右上角 Continue，確認配置無誤繼續點擊 Confirm
-
-- **設置Xcode**
-1. 用 Xcode 開啟 cahtapp/ios
-2. 點選 Runner 並於右側選單切換至 Signing & Capabilities
-3. 點擊 “＋Capability” 選擇 “Push Notifications”(點兩下啟用)
-4. 再次點擊 “＋Capability” 選擇 “Background Modes”(點兩下啟用)
-5. 於 “Background Modes” 中勾選 “Background fetch” 跟 “Remote notifications”
-
-- **上傳 APNs key 到 Firebase 專案**
- 於 Firebase 中點擊左上角專案總覽旁的齒輪，並點選專案設定，切換至 “雲端通訊”
-2. 往下滾到 “Apple 應用程式設定” 於 APN 驗證金鑰處點擊上傳，上傳步驟 2 下載的 .p8 檔案
-3. 輸入金鑰 ID(於 Certificates, IDs, & Profiles 頁面進入 keys 後可看到) 與團隊 ID(在 Certificates, IDs, & Profiles 頁面的右上角可看到)
-
-- **ios/Runner/AppDelegate.swift**
-```
-if #available(iOS 10.0, *) {
-  UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
-}
-...
-return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+#
 ```
 
-### 設定Flutter
-
+使用mongoengine建立與mongoDB得連線
 ```
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+import mongoengine
 
-  // 初始化
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // 向使用者發送開啟「通知」請求
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    announcement: true,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
-
-  // 取得Token，用於發送通知給指定裝置
-  final firebaseDeviceToken = await FirebaseMessaging.instance.getToken();
-  if (firebaseDeviceToken != null) {
-    print(firebaseDeviceToken);
-  }
-  ...
-}
+mongoengine.connect(host="mongodb://dino:X7XaWhnFiy@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=demo", alias='default')
 ```
 
-### 開啟監聽
+## 建立Restful API 
+
+** 以本範例的'notice' app示範 **
+
+### 1. 建立Model (notice/models.py)
+
+** 將原本採用的models.Model改成mongoengine的Document，Field部分mongoengine也都有支援 **
+```
+from django.utils import timezone
+from mongoengine import *
+
+
+class Notice(Document):
+    title = StringField(max_length=20, required=True, verbose_name='標題')
+    content = StringField(required=True, verbose_name='內容')
+    created_at = DateTimeField(default=timezone.now, verbose_name='創建日期')
+
+    meta = {'collection': 'notices'}  # 設置集合名稱
+```
+
+### 2. 建立Serializer (notice/serializers.py)
+
+** 這邊的話就直接採用rest_framework_mongoengine所提供的serializers類 **
 
 ```
-//FirebaseMessage背景訊息Handler (必須放在main上方)
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print('背景通知: ${message.messageId}');
-}
+from rest_framework_mongoengine import serializers
+from .models import Notice
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
 
-  // 初始化Firebase Core
-  ...
-
-  // 註冊背景通知Handler
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  ...
-}
-
-class _MainPageState extends State<MainPage> {
-  @override
-  void initState() {
-    super.initState();
-
-    // 監聽前景(Foreground)通知
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print('前景訊息: ${message.messageId}');
-    });
-
-    // 監聽開啟(OpenedApp)通知
-    Future<void> openedAppMessage(BuildContext context) async {
-      // 當APP完全中止時透過通知開啟時的訊息，一旦使用， RemoteMessage將被刪除
-      RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-    
-      if (initialMessage != null) {
-        print('開啟通知: ${initialMessage.messageId}');
-      }
-    
-      // 當APP從背景狀態開啟時發布RemoteMessage Stream
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        print('開啟通知: ${message.messageId}');
-      });
-    }
-  }
-  ...
-}
+class NoticeSerializer(serializers.DocumentSerializer):
+    class Meta:
+        model = Notice
+        fields = '__all__'
 ```
+
+### 3. 建立ViewSet (notice/viewsets.py)
+
+```
+from rest_framework_mongoengine import viewsets
+from .serializers import NoticeSerializer
+from .models import Notice
+
+class NoticeViewSet(viewsets.ModelViewSet):
+    serializer_class = NoticeSerializer
+    queryset = Notice.objects.all()
+```
+
+### 4. 建立路由 (urls.py)
+
+
+```
+from rest_framework_mongoengine import routers
+from notices.viewsets import NoticeViewSet
+
+router = routers.DefaultRouter()
+router.register(r'notice', NoticeViewSet, basename='notice')
+
+urlpatterns = [
+    ...
+    path('api/', include(router.urls)),
+]
+```
+
+## 啟動
+
+```
+python manage.py runserver 8000
+```
+
+## 使用postman等工具驗證
+
+<img width="677" alt="image" src="https://github.com/dinoi22g/django_mongo_restapi_demo/assets/95574882/94976c39-b493-475b-90bf-77a7c833cec6">
 
 ### 完成
 
-可以嘗試發送訊息了！
