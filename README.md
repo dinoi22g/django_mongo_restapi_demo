@@ -4,35 +4,35 @@
 
 ### 1. 設置登入模式=>驗證
 
-*** 開啟mongod.conf ***
+**開啟mongod.conf** 
 ```
 sudo vim /etc/mongod.conf
 ```
 
-** 增加授權機制 **
+**增加授權機制**
 ```
 security:
     authorization: enabled
 ```
 
-** 重啟MongoDB **
+**重啟MongoDB**
 ```
 sudo systemctl restart mongod
 ```
 
 ### 2. 建立資料庫帳號
 
-** 執行Mongo shell **
+**執行Mongo shell**
 ```
 mongo
 ```
 
-** 切換資料庫到demo **
+**切換資料庫到demo**
 ```
 use demo
 ```
 
-** 建立帳號並開啟對資料庫demo的權限 **
+**建立帳號並開啟對資料庫demo的權限**
 ```
 db.createUser(
   {
@@ -45,7 +45,7 @@ db.createUser(
 
 ### Python安裝套件
 
-** 忽略Django建立過程 **
+**忽略Django建立過程**
 
 ```
 pip install mongoengine==0.27.0
@@ -56,7 +56,7 @@ pip install django-rest-framework-mongoengine==3.4.1
 
 ### 修改settings.py
 
-** 註冊APPs**
+**註冊APPs**
 ```
 INSTALLED_APPS = [
     ...
@@ -67,7 +67,7 @@ INSTALLED_APPS = [
 ]
 ```
 
-** 新增Restful Framework設定 **
+**新增Restful Framework設定**
 ```
 REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
@@ -81,7 +81,7 @@ REST_FRAMEWORK = {
 }
 ```
 
-** 修改Database **
+**修改Database**
 
 註解掉原本的DATABASE設定或直接留空 (該範例直接註解)
 ```
@@ -103,11 +103,11 @@ mongoengine.connect(host="mongodb://dino:X7XaWhnFiy@localhost:27017/?authMechani
 
 ### 建立Restful API 
 
-** 以本範例的'notice' app示範 **
+**以本範例的'notice' app示範**
 
 #### 1. 建立Model (notice/models.py)
 
-** 將原本採用的models.Model改成mongoengine的Document，Field部分mongoengine也都有支援 **
+**將原本採用的models.Model改成mongoengine的Document，Field部分mongoengine也都有支援**
 ```
 from django.utils import timezone
 from mongoengine import *
@@ -123,7 +123,7 @@ class Notice(Document):
 
 #### 2. 建立Serializer (notice/serializers.py)
 
-** 這邊的話就直接採用rest_framework_mongoengine所提供的serializers類 **
+**這邊的話就直接採用rest_framework_mongoengine所提供的serializers類**
 
 ```
 from rest_framework_mongoengine import serializers
