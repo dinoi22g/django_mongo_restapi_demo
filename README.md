@@ -43,7 +43,7 @@ db.createUser(
 )
 ```
 
-## Python安裝套件
+### Python安裝套件
 
 ** 忽略Django建立過程 **
 
@@ -54,7 +54,7 @@ pip install djangorestframework==3.14.0
 pip install django-rest-framework-mongoengine==3.4.1
 ```
 
-## 修改settings.py
+### 修改settings.py
 
 ** 註冊APPs**
 ```
@@ -101,11 +101,11 @@ import mongoengine
 mongoengine.connect(host="mongodb://dino:X7XaWhnFiy@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=demo", alias='default')
 ```
 
-## 建立Restful API 
+### 建立Restful API 
 
 ** 以本範例的'notice' app示範 **
 
-### 1. 建立Model (notice/models.py)
+#### 1. 建立Model (notice/models.py)
 
 ** 將原本採用的models.Model改成mongoengine的Document，Field部分mongoengine也都有支援 **
 ```
@@ -164,13 +164,13 @@ urlpatterns = [
 ]
 ```
 
-## 啟動
+### 啟動
 
 ```
 python manage.py runserver 8000
 ```
 
-## 使用postman等工具驗證
+### 使用postman等工具驗證
 
 <img width="677" alt="image" src="https://github.com/dinoi22g/django_mongo_restapi_demo/assets/95574882/94976c39-b493-475b-90bf-77a7c833cec6">
 
