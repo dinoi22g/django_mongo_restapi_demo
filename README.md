@@ -4,7 +4,7 @@
 
 ### 1. 設置登入模式=>驗證
 
-** 開啟mongod.conf **
+*** 開啟mongod.conf ***
 ```
 sudo vim /etc/mongod.conf
 ```
@@ -121,7 +121,7 @@ class Notice(Document):
     meta = {'collection': 'notices'}  # 設置集合名稱
 ```
 
-### 2. 建立Serializer (notice/serializers.py)
+#### 2. 建立Serializer (notice/serializers.py)
 
 ** 這邊的話就直接採用rest_framework_mongoengine所提供的serializers類 **
 
@@ -136,7 +136,7 @@ class NoticeSerializer(serializers.DocumentSerializer):
         fields = '__all__'
 ```
 
-### 3. 建立ViewSet (notice/viewsets.py)
+#### 3. 建立ViewSet (notice/viewsets.py)
 
 ```
 from rest_framework_mongoengine import viewsets
@@ -148,7 +148,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notice.objects.all()
 ```
 
-### 4. 建立路由 (urls.py)
+#### 4. 建立路由 (urls.py)
 
 
 ```
